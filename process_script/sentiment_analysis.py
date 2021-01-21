@@ -1,5 +1,5 @@
 
-
+import os
 import xlwt
 import pickle
 import itertools
@@ -13,7 +13,7 @@ from nltk.classify.scikitlearn import SklearnClassifier
 from sklearn.svm import SVC, LinearSVC, NuSVC
 from sklearn.naive_bayes import MultinomialNB, BernoulliNB
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score
 
 pos_f = '../pkl_data/tagged_data/pos_review.pkl'
 neg_f = '../pkl_data/tagged_data/neg_review.pkl'
@@ -196,12 +196,17 @@ def cut_devtest():
 # 4.2 使用训练集训练分类器
 # 4.3 用分类器对开发测试集里面的数据进行分类，给出分类预测的标签
 # 4.4 对比分类标签和人工标注的差异，计算出准确度
+# i = 0
 def score(classifier):
     classifier = nltk.SklearnClassifier(classifier)  # 在nltk 中使用scikit-learn的接口
     classifier.train(train)  #训练分类器
 
     pred = classifier.classify_many(dev)  # 对开发测试集的数据进行分类，给出预测的标签
-    return accuracy_score(tag_dev, pred)  # 对比分类预测结果和人工标注的正确结果，给出分类器准确度
+    a_s = accuracy_score(tag_dev, pred)
+    p_s = precision_score(tag_dev, pred, average='binary',pos_label="pos")
+    r_s = recall_score(tag_dev, pred, average='binary',pos_label="pos")
+    f1_s = f1_score(tag_dev, pred, average='binary',pos_label="pos")
+    return (a_s, p_s, r_s, f1_s)  # 对比分类预测结果和人工标注的正确结果，给出分类器准确度
 
 
 def try_diffirent_classifiers():
@@ -242,12 +247,19 @@ def compare_test():
     cut_devtest()
 
     sh.write(0, 0, '所有词')
+    sh.write(0, 2, 'precision_score')
+    sh.write(0, 3, 'recall_score')
+    sh.write(0, 4, 'f1_score')
     col_cnt += 1
     results = try_diffirent_classifiers()
     temp = 0
     for i in classifiers:
         sh.write(col_cnt, 0, i)
-        sh.write(col_cnt, 1, results[temp])
+        sh.write(col_cnt, 1, results[temp][0])
+        sh.write(col_cnt, 2, results[temp][1])
+        sh.write(col_cnt, 3, results[temp][2])
+        sh.write(col_cnt, 4, results[temp][3])
+
         col_cnt += 1
         temp += 1
 
@@ -265,7 +277,10 @@ def compare_test():
     temp = 0
     for i in classifiers:
         sh.write(col_cnt, 0, i)
-        sh.write(col_cnt, 1, results[temp])
+        sh.write(col_cnt, 1, results[temp][0])
+        sh.write(col_cnt, 2, results[temp][1])
+        sh.write(col_cnt, 3, results[temp][2])
+        sh.write(col_cnt, 4, results[temp][3])
         col_cnt += 1
         temp += 1
 
@@ -283,7 +298,10 @@ def compare_test():
     temp = 0
     for i in classifiers:
         sh.write(col_cnt, 0, i)
-        sh.write(col_cnt, 1, results[temp])
+        sh.write(col_cnt, 1, results[temp][0])
+        sh.write(col_cnt, 2, results[temp][1])
+        sh.write(col_cnt, 3, results[temp][2])
+        sh.write(col_cnt, 4, results[temp][3])
         col_cnt += 1
         temp += 1
 
@@ -322,7 +340,7 @@ def compare_test():
         results = try_diffirent_classifiers()
         temp = 0
         for i in classifiers:
-            sh.write(col_cnt, row_cnt, results[temp])
+            sh.write(col_cnt, row_cnt, results[temp][0])
             col_cnt += 1
             temp += 1
         row_cnt += 1
@@ -358,12 +376,16 @@ def compare_test():
         results = try_diffirent_classifiers()
         temp = 0
         for i in classifiers:
-            sh.write(col_cnt, row_cnt, results[temp])
+            sh.write(col_cnt, row_cnt, results[temp][0])
             col_cnt += 1
             temp += 1
         row_cnt += 1
 
+
+
     # 保存文件
+    if(os.path.exists('../out/compare.xls')):
+        os.remove('../out/compare.xls')
     wb.save('../out/compare.xls')
     # word_scores_1 = create_word_scores()
     # word_scores_2 = create_word_bigram_scores()
@@ -455,10 +477,11 @@ def application(moto_features):
         p_file.write(str(i.prob('pos')) + ' ' + str(i.prob('neg')) + '\n')
     p_file.close()
 
+
 if __name__ == '__main__':
-    store_classifier()
-    moto_features = transfer_text_to_moto()
-    application(moto_features)
-    #compare_test()
+    #store_classifier()
+    #moto_features = transfer_text_to_moto()
+    #application(moto_features)
+    compare_test()
 
 
