@@ -8,9 +8,9 @@ pos_words = []
 neg_words = []
 
 
-FindPath = '../../raw_data/tagged_data/pos/'
+FindPath = '../../raw_data/tagged_data/pos_yiqing/'
 FileNames = os.listdir(FindPath)
-
+num_of_pos_filep = len(FileNames)
 for file_name in FileNames:
     full_file_name = os.path.join(FindPath, file_name)
     if 'utf8' in full_file_name:
@@ -22,8 +22,9 @@ for file_name in FileNames:
             pos_words.append(list(pos_list))
 
 
-FindPath = '../../raw_data/tagged_data/neg/'
+FindPath = '../../raw_data/tagged_data/neg_yiqing/'
 FileNames = os.listdir(FindPath)
+num_of_neg_file = len(FileNames)
 for file_name in FileNames:
     full_file_name = os.path.join(FindPath, file_name)
     if 'utf8' in full_file_name:
@@ -36,10 +37,11 @@ for file_name in FileNames:
             neg_words.append(list(neg_list))
 
 
-output = open('../../pkl_data/tagged_data/pos_review.pkl', 'wb')
-pickle.dump(pos_words, output)
+
+output = open('../../pkl_data/tagged_data/pos_comment.pkl', 'wb')
+pickle.dump(pos_words[:min(num_of_pos_filep,num_of_neg_file)], output)
 output.close()
 
-output = open('../../pkl_data/tagged_data/neg_review.pkl', 'wb')
-pickle.dump(neg_words, output)
+output = open('../../pkl_data/tagged_data/neg_comment.pkl', 'wb')
+pickle.dump(neg_words[:min(num_of_pos_filep,num_of_neg_file)], output)
 output.close()

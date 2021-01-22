@@ -21,8 +21,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score
 
 
-pos_f = '../pkl_data/tagged_data/pos_review.pkl'
-neg_f = '../pkl_data/tagged_data/neg_review.pkl'
+pos_f = '../pkl_data/tagged_data/pos_comment.pkl'
+neg_f = '../pkl_data/tagged_data/neg_comment.pkl'
 
 
 # 1 提取特征方法
@@ -32,16 +32,17 @@ def bag_of_words(words):
 
 
 # 1.2 把双词搭配（bigrams）作为特征
-def bigram(words, score_fn=BigramAssocMeasures.chi_sq, n=1000):
+def bigram(words, score_fn=BigramAssocMeasures.pmi, n=1000):
 
     bigram_finder = BigramCollocationFinder.from_words(words)  # 把文本变成双词搭配的形式
+    print(bigram_finder)
     bigrams = bigram_finder.nbest(score_fn, n)  # 使用了卡方统计的方法，选择排名前1000的双词,不一定有1000个
 
     return bag_of_words(bigrams)
 
 
 # 1.3 把所有词和双词搭配一起作为特征
-def bigram_words(words, score_fn=BigramAssocMeasures.chi_sq, n=1000):
+def bigram_words(words, score_fn=BigramAssocMeasures.pmi, n=1000):
 
     tuple_words = []
     for i in words:
@@ -189,8 +190,8 @@ def cut_data(posFeatures, negFeatures):
     # train = posFeatures[300:] + negFeatures[300:]
     # devtest = posFeatures[300:500] + negFeatures[300:500]
     # test_data = posFeatures[:500] + negFeatures[:500]
-    train = posFeatures[300:] + negFeatures[300:]  # 后800条作训练
-    devtest = posFeatures[:300] + negFeatures[:300]  # 前200条作开发测试
+    train = posFeatures[50:] + negFeatures[50:]  # 后800条作训练
+    devtest = posFeatures[:50] + negFeatures[:50]  # 前200条作开发测试
     # 这里采用了手动分类，实际上不科学，应该调包KFold，GroupKFold，StratifiedKFold
 
 # 4.1 开发测试集分割人工标注的标签和数据
@@ -217,7 +218,7 @@ def score(classifier):
 def plot_ROC(classifier):
     cv = StratifiedKFold(n_splits=6)  # 导入该模型，后面将数据划分6份
     classifier = SklearnClassifier(classifier)
-
+    global k
     # 画平均ROC曲线的两个参数
     mean_tpr = 0.0  # 用来记录画平均ROC曲线的信息
     mean_fpr = np.linspace(0, 1, 100)
@@ -260,8 +261,10 @@ def plot_ROC(classifier):
     plt.ylabel('True Positive Rate')  # 可以使用中文，但需要导入一些库即字体
     plt.title('Receiver operating characteristic curve using {0}'.format(classifier))
     plt.legend(loc="lower right")
+    fig = plt.gcf()
     plt.show()
-
+    fig.savefig('../out/ROC_curves/第{0}张'.format(k+1))    #保存图片
+    k = k+1
 def try_diffirent_classifiers():
 
     results = list()
@@ -283,7 +286,7 @@ def try_diffirent_classifiers():
 
 best_words = []
 classifiers = ['BernoulliNB', 'MultinomiaNB', 'LogisticRegression', 'SVC', 'LinearSVC', 'NuSVC']
-
+k = 0 # 统计有几张roc曲线图
 # 4.5 检验不同分类器和不同的特征选择的结果
 def compare_test():
 
@@ -304,7 +307,7 @@ def compare_test():
 
     cut_data(posFeatures, negFeatures)
     cut_devtest()
-
+    # print(train)
     sh.write(0, 0, '所有词')
     sh.write(0, 2, 'precision_score')
     sh.write(0, 3, 'recall_score')
