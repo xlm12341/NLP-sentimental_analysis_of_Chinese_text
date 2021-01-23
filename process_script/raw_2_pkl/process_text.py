@@ -8,6 +8,8 @@ pos_words = []
 neg_words = []
 
 
+
+
 FindPath = '../../raw_data/tagged_data/pos_yiqing/'
 FileNames = os.listdir(FindPath)
 num_of_pos_filep = len(FileNames)

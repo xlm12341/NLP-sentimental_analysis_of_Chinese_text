@@ -35,7 +35,7 @@ def bag_of_words(words):
 def bigram(words, score_fn=BigramAssocMeasures.pmi, n=1000):
 
     bigram_finder = BigramCollocationFinder.from_words(words)  # 把文本变成双词搭配的形式
-    print(bigram_finder)
+    # print(bigram_finder)
     bigrams = bigram_finder.nbest(score_fn, n)  # 使用了卡方统计的方法，选择排名前1000的双词,不一定有1000个
 
     return bag_of_words(bigrams)
@@ -181,24 +181,27 @@ train = []  # 训练集
 devtest = []  # 开发测试集
 test = []  # 测试集
 dev = []
+dev_roc = []
+tag_dev_roc = []
 tag_dev = []
-
+for_roc_plot = []
 
 # 3.4 把特征化之后的数据分割为开发集和测试集//训练集和开发测试集
 def cut_data(posFeatures, negFeatures):
-    global train, devtest, test
+    global train, devtest, test, for_roc_plot
     # train = posFeatures[300:] + negFeatures[300:]
     # devtest = posFeatures[300:500] + negFeatures[300:500]
     # test_data = posFeatures[:500] + negFeatures[:500]
     train = posFeatures[50:] + negFeatures[50:]  # 后800条作训练
     devtest = posFeatures[:50] + negFeatures[:50]  # 前200条作开发测试
+    for_roc_plot = posFeatures[:] + negFeatures[:]
     # 这里采用了手动分类，实际上不科学，应该调包KFold，GroupKFold，StratifiedKFold
 
 # 4.1 开发测试集分割人工标注的标签和数据
 def cut_devtest():
-    global dev, tag_dev
+    global dev, tag_dev, dev_roc, tag_dev_roc
     dev, tag_dev = zip(*devtest)
-
+    dev_roc, tag_dev_roc = zip(*for_roc_plot)
 
 # 4.2 使用训练集训练分类器
 # 4.3 用分类器对开发测试集里面的数据进行分类，给出分类预测的标签
@@ -224,15 +227,15 @@ def plot_ROC(classifier):
     mean_fpr = np.linspace(0, 1, 100)
     cnt = 0
 
-    for i, (train, test) in enumerate(cv.split(dev, tag_dev)):  # 利用模型划分数据集和目标变量 为一一对应的下标
+    for i, (train, test) in enumerate(cv.split(dev_roc, tag_dev_roc)):  # 利用模型划分数据集和目标变量 为一一对应的下标
         cnt += 1
-        devtest1 = np.array(devtest)
+        devtest1 = np.array(for_roc_plot)
         classifier.train(devtest1[train])
         # print(cnt)
         # print(train)
 
-        dev1 = np.array(dev)
-        tag_dev1 = np.array(tag_dev)
+        dev1 = np.array(dev_roc)
+        tag_dev1 = np.array(tag_dev_roc)
         pred_ = classifier.prob_classify_many(dev1[test]) # 测试集的概率
         # print(pred_)
         # probas_ = classifier.fit(dev1[train], tag_dev1[train]).predict_proba(dev1[test])  # 训练模型后预测每条样本得到两种结果的概率
@@ -309,6 +312,7 @@ def compare_test():
     cut_devtest()
     # print(train)
     sh.write(0, 0, '所有词')
+    sh.write(0, 1, 'accuracy')
     sh.write(0, 2, 'precision_score')
     sh.write(0, 3, 'recall_score')
     sh.write(0, 4, 'f1_score')
@@ -367,8 +371,7 @@ def compare_test():
         col_cnt += 1
         temp += 1
 
-    dimension = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500,
-                 9000]
+    dimension = [100,200,300,400,500,1000,1500,2000,2500,3000]
 
     row_cnt = 0
     col_cnt += 1

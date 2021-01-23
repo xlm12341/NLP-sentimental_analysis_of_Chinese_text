@@ -6,6 +6,8 @@ with open('../../raw_data/peopledailyfinal.json','r',encoding='utf-8') as f:
 
 del data[0]
 
+
+
 import codecs
 count = 0
 for i in range(len(data)):
