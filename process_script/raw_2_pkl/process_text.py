@@ -10,7 +10,9 @@ neg_words = []
 
 
 
-FindPath = '../../raw_data/tagged_data/pos_yiqing/'
+# FindPath = '../../raw_data/tagged_data/pos_yiqing/'
+FindPath = '../../raw_data/tagged_data/stage3_txt/2020-02-21-/pos_yiqing'
+
 FileNames = os.listdir(FindPath)
 num_of_pos_filep = len(FileNames)
 for file_name in FileNames:
@@ -24,7 +26,9 @@ for file_name in FileNames:
             pos_words.append(list(pos_list))
 
 
-FindPath = '../../raw_data/tagged_data/neg_yiqing/'
+# FindPath = '../../raw_data/tagged_data/neg_yiqing/'
+FindPath = '../../raw_data/tagged_data/stage3_txt/2020-02-21-/neg_yiqing'
+
 FileNames = os.listdir(FindPath)
 num_of_neg_file = len(FileNames)
 for file_name in FileNames:
@@ -40,10 +44,15 @@ for file_name in FileNames:
 
 
 
-output = open('../../pkl_data/tagged_data/pos_comment.pkl', 'wb')
+
+# output = open('../../pkl_data/tagged_data/pos_comment.pkl', 'wb')
+output = open('../../pkl_data/tagged_data/pos_comment_oneday.pkl', 'wb')
+
 pickle.dump(pos_words[:min(num_of_pos_filep,num_of_neg_file)], output)
 output.close()
 
-output = open('../../pkl_data/tagged_data/neg_comment.pkl', 'wb')
+# output = open('../../pkl_data/tagged_data/neg_comment.pkl', 'wb')
+output = open('../../pkl_data/tagged_data/neg_comment_oneday.pkl', 'wb')
+
 pickle.dump(neg_words[:min(num_of_pos_filep,num_of_neg_file)], output)
 output.close()

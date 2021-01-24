@@ -21,10 +21,14 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score
 
 
+# pos_f = '../pkl_data/tagged_data/pos_review.pkl'
+# neg_f = '../pkl_data/tagged_data/neg_review.pkl'
+
 pos_f = '../pkl_data/tagged_data/pos_comment.pkl'
 neg_f = '../pkl_data/tagged_data/neg_comment.pkl'
 
-
+pos_f = '../pkl_data/tagged_data/pos_comment_oneday.pkl'
+neg_f = '../pkl_data/tagged_data/neg_comment_oneday.pkl'
 # 1 提取特征方法
 # 1.1 把所有词作为特征
 def bag_of_words(words):
@@ -192,8 +196,8 @@ def cut_data(posFeatures, negFeatures):
     # train = posFeatures[300:] + negFeatures[300:]
     # devtest = posFeatures[300:500] + negFeatures[300:500]
     # test_data = posFeatures[:500] + negFeatures[:500]
-    train = posFeatures[50:] + negFeatures[50:]  # 后800条作训练
-    devtest = posFeatures[:50] + negFeatures[:50]  # 前200条作开发测试
+    train = posFeatures[250:] + negFeatures[250:]  # 后800条作训练
+    devtest = posFeatures[:250] + negFeatures[:250]  # 前200条作开发测试
     for_roc_plot = posFeatures[:] + negFeatures[:]
     # 这里采用了手动分类，实际上不科学，应该调包KFold，GroupKFold，StratifiedKFold
 
@@ -266,7 +270,7 @@ def plot_ROC(classifier):
     plt.legend(loc="lower right")
     fig = plt.gcf()
     plt.show()
-    fig.savefig('../out/ROC_curves/第{0}张'.format(k+1))    #保存图片
+    fig.savefig('../out/ROC_curves/第{0}张'.format(k+1), dpi=400)    #保存图片
     k = k+1
 def try_diffirent_classifiers():
 
