@@ -506,7 +506,7 @@ def store_classifier():
     load_data()
     word_scores = create_word_bigram_scores()
     global best_words
-    best_words = find_best_words(word_scores, 2500) # 根据compare的表格选取最合适的维度
+    best_words = find_best_words(word_scores, 500) # 根据compare的表格选取最合适的维度
 
     posFeatures = pos_features(best_word_features)
     negFeatures = neg_features(best_word_features)
@@ -522,7 +522,8 @@ def store_classifier():
 # 6.1 把文本变为特征表示的形式
 def transfer_text_to_moto():
 
-    moto = pickle.load(open('../pkl_data/test_data/test_review.pkl', 'rb'))  # 载入文本数据
+    # moto = pickle.load(open('../pkl_data/test_data/test_review.pkl', 'rb'))  # 载入文本数据
+    moto = pickle.load(open('../pkl_data/test_data/test_one_day.pkl', 'rb'))  # 载入文本数据
 
     def extract_features(data):
         feat = []   #列表里的元素是包含每一条评论的特征词的字典
@@ -539,17 +540,30 @@ def application(moto_features):
     clf = pickle.load(open('../out/classifier.pkl', 'rb'))  # 载入分类器
 
     pred = clf.prob_classify_many(moto_features)  # 该方法是计算分类概率值的
-    print(pred)
-    p_file = open('../out/test_result.txt', 'w')  # 把结果写入文档
+    # print(pred)
+    pos_count = 0
+    neg_count = 0
+    # p_file = open('../out/test_result.txt', 'w')  # 把结果写入文档
+    p_file = open('../out/test_result_oneday.txt', 'w')  # 把结果写入文档
+
+    countA = 0
     for i in pred:
+        countA = countA + 1
         p_file.write(str(i.prob('pos')) + ' ' + str(i.prob('neg')) + '\n')
+        if i.prob('pos') >= i.prob('neg'):
+            pos_count = pos_count + 1
+        elif i.prob('pos') <= i.prob('neg'):
+            neg_count = neg_count + 1
+        if(countA == len(pred)):
+            p_file.write(str(pos_count) + ' ' + str(neg_count) + '\n')
     p_file.close()
 
 
+
 if __name__ == '__main__':
-    # store_classifier()
-    # moto_features = transfer_text_to_moto()
-    # application(moto_features)
-    compare_test()
+    store_classifier()
+    moto_features = transfer_text_to_moto()
+    application(moto_features)
+    # compare_test()
 
 

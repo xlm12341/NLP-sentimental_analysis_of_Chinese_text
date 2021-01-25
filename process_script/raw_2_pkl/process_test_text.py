@@ -3,10 +3,12 @@ import jieba
 import os
 import re
 import string
-
+import pprint
 test_words = []
-
-FindPath = '../../raw_data/test_data/'
+f = open('../../pkl_data/test_data/test_review.pkl','rb')
+data = pickle.load(f)
+print(data)
+FindPath = '../../raw_data/test_data/one day test'
 FileNames = os.listdir(FindPath)
 for file_name in FileNames:
     full_file_name = os.path.join(FindPath, file_name)
@@ -20,6 +22,6 @@ for file_name in FileNames:
             test_words.append(list(test_list))
 
 
-output = open('../../pkl_data/test_data/test_review.pkl', 'wb')
+output = open('../../pkl_data/test_data/test_one_day.pkl', 'wb')
 pickle.dump(test_words, output)
 output.close()
